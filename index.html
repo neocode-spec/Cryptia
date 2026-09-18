@@ -8,13 +8,9 @@
         * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
         body { background: #05070b; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
 
-        /* Canvas Background for 3D Galaxy */
         #galaxy-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
-
-        /* Main Scrollable Content Container */
         .content { position: relative; z-index: 2; width: 100%; }
 
-        /* Hero Section */
         .hero {
             height: 100vh; display: flex; flex-direction: column;
             justify-content: center; align-items: center; text-align: center; padding: 0 20px;
@@ -28,47 +24,53 @@
         }
         .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 0 45px rgba(0, 230, 118, 0.7); }
 
-        /* Section Layouts */
-        .section { max-width: 1100px; margin: 0 auto; padding: 100px 20px; text-align: center; }
+        .section { max-width: 1200px; margin: 0 auto; padding: 100px 20px; text-align: center; }
         .section-title { font-size: 2.5rem; color: #ffffff; margin-bottom: 15px; }
         .section-subtitle { color: #00e676; font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 50px; }
 
-        /* Grid for Capabilities */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
         .card {
-            background: rgba(21, 26, 35, 0.75); border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px); padding: 35px 25px; border-radius: 16px; text-align: left;
+            background: rgba(21, 26, 35, 0.8); border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px); padding: 30px 20px; border-radius: 16px; text-align: left;
             transition: transform 0.3s ease, border-color 0.3s ease;
         }
         .card:hover { transform: translateY(-5px); border-color: #00e676; }
         .card h3 { font-size: 1.3rem; color: #00e676; margin-bottom: 12px; }
         .card p { color: #a0aec0; font-size: 0.95rem; line-height: 1.6; }
 
-        /* Form / Pre-Order Box */
+        /* Pricing Card Layouts */
+        .price-card {
+            background: rgba(21, 26, 35, 0.85); border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px); padding: 35px 20px; border-radius: 16px; text-align: center;
+            display: flex; flex-direction: column; justify-content: space-between; position: relative;
+        }
+        .price-card.featured { border-color: #00e676; box-shadow: 0 0 25px rgba(0, 230, 118, 0.25); }
+        .badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: #00e676; color: #000; padding: 4px 12px; font-size: 0.75rem; font-weight: bold; border-radius: 12px; text-transform: uppercase; }
+        .price { font-size: 2.8rem; font-weight: 800; color: #fff; margin: 15px 0 5px 0; }
+        .price span { font-size: 1rem; color: #8a99ad; font-weight: normal; }
+        .plan-features { list-style: none; padding: 20px 0; text-align: left; color: #a0aec0; font-size: 0.9rem; line-height: 2; }
+
         .waitlist-box {
             background: rgba(21, 26, 35, 0.85); border: 1px solid rgba(0, 230, 118, 0.3);
-            border-radius: 20px; padding: 50px; max-width: 600px; margin: 0 auto;
+            border-radius: 20px; padding: 50px 20px; max-width: 600px; margin: 0 auto;
         }
         .waitlist-box input[type="email"] {
             width: 100%; padding: 15px; margin: 20px 0; border-radius: 8px;
             border: 1px solid #2d3748; background: #0b0e14; color: #ffffff; font-size: 1rem;
         }
-        .waitlist-box input[type="email"]:focus { outline: none; border-color: #00e676; }
 
         footer { text-align: center; padding: 40px; color: #4a5568; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
-    <!-- 3D Particle Galaxy Canvas Background -->
     <div id="galaxy-container"></div>
 
     <div class="content">
-        <!-- Hero Section -->
         <section class="hero">
             <h1>CRYPTIA ENGINE</h1>
             <p>Zero-custody, high-precision algorithmic strategy engine. Built for automated execution across crypto & forex markets.</p>
-            <a href="#waitlist" class="cta-btn">Join Pre-Order Waitlist</a>
+            <a href="#pricing" class="cta-btn">View Pricing Tiers</a>
         </section>
 
         <!-- Capabilities Section -->
@@ -78,31 +80,107 @@
             <div class="grid">
                 <div class="card">
                     <h3>Non-Custodial Architecture</h3>
-                    <p>Cryptia never touches or holds user funds. Connect your broker via trade-only API keys with zero withdrawal rights for maximum security.</p>
+                    <p>Cryptia connects via trade-only API keys with zero withdrawal rights for maximum security.</p>
                 </div>
                 <div class="card">
                     <h3>Hardcoded Risk Caps</h3>
-                    <p>Enforces a maximum 1.5% capital risk per trade and an integrated global stop-loss to protect portfolios during extreme market volatility.</p>
+                    <p>Enforces a maximum 1.5% capital risk per trade with auto stop-loss routines.</p>
                 </div>
                 <div class="card">
-                    <h3>24/7 Cloud Worker Loops</h3>
-                    <p>Executes continuous algorithmic strategies on dedicated background cloud infrastructure—unaffected by local power or network drops.</p>
+                    <h3>24/7 Cloud Execution</h3>
+                    <p>Executes continuous algorithmic strategies on dedicated cloud workers uninterrupted.</p>
                 </div>
                 <div class="card">
                     <h3>Sandbox Paper-Trading</h3>
-                    <p>Test real market signals in a risk-free simulated environment before deploying real capital to live broker connections.</p>
+                    <p>Test real market signals risk-free in simulated broker accounts before going live.</p>
                 </div>
             </div>
         </section>
 
-        <!-- Pre-Order / Waitlist Section -->
+        <!-- Pricing Section -->
+        <section class="section" id="pricing">
+            <div class="section-subtitle">Flexible Pricing</div>
+            <h2 class="section-title">Choose Your Trading Tier</h2>
+            <div class="grid">
+                
+                <!-- $10 Plan -->
+                <div class="price-card">
+                    <h3>Starter</h3>
+                    <div class="price">$10 <span>/mo</span></div>
+                    <ul class="plan-features">
+                        <li>✔ 1 Active Exchange API</li>
+                        <li>✔ Paper-Trading Sandbox</li>
+                        <li>✔ Basic Strategy Signals</li>
+                        <li>✔ 1.5% Risk Cap Protection</li>
+                    </ul>
+                    <a href="#waitlist" class="cta-btn" style="padding: 10px; font-size: 0.9rem;">Pre-Order $10</a>
+                </div>
+
+                <!-- $15 Plan -->
+                <div class="price-card">
+                    <h3>Lite Trader</h3>
+                    <div class="price">$15 <span>/mo</span></div>
+                    <ul class="plan-features">
+                        <li>✔ 2 Active Exchange APIs</li>
+                        <li>✔ Full Sandbox Sandbox</li>
+                        <li>✔ Standard Execution Speed</li>
+                        <li>✔ Email Alerts & Reports</li>
+                    </ul>
+                    <a href="#waitlist" class="cta-btn" style="padding: 10px; font-size: 0.9rem;">Pre-Order $15</a>
+                </div>
+
+                <!-- $20 Plan (Featured) -->
+                <div class="price-card featured">
+                    <div class="badge">Most Popular</div>
+                    <h3>Pro Trader</h3>
+                    <div class="price">$20 <span>/mo</span></div>
+                    <ul class="plan-features">
+                        <li>✔ Multi-Device Live Access</li>
+                        <li>✔ Priority Execution Speed</li>
+                        <li>✔ Custom Risk Parameters</li>
+                        <li>✔ 24/7 Cloud Worker Loop</li>
+                    </ul>
+                    <a href="#waitlist" class="cta-btn" style="padding: 10px; font-size: 0.9rem;">Pre-Order $20</a>
+                </div>
+
+                <!-- $30 Plan -->
+                <div class="price-card">
+                    <h3>Advanced</h3>
+                    <div class="price">$30 <span>/mo</span></div>
+                    <ul class="plan-features">
+                        <li>✔ Unlimited Exchange APIs</li>
+                        <li>✔ Multi-Asset Trading</li>
+                        <li>✔ Ultra-Low Latency Routing</li>
+                        <li>✔ Priority Support</li>
+                    </ul>
+                    <a href="#waitlist" class="cta-btn" style="padding: 10px; font-size: 0.9rem;">Pre-Order $30</a>
+                </div>
+
+                <!-- $145 Plan -->
+                <div class="price-card">
+                    <div class="badge" style="background: #9c27b0; color: #fff;">Institutional</div>
+                    <h3>Lifetime Pass</h3>
+                    <div class="price">$145 <span>/once</span></div>
+                    <ul class="plan-features">
+                        <li>✔ Lifetime Engine Access</li>
+                        <li>✔ All Future Updates Included</li>
+                        <li>✔ Dedicated API Infrastructure</li>
+                        <li>✔ VIP Founder Support</li>
+                    </ul>
+                    <a href="#waitlist" class="cta-btn" style="padding: 10px; font-size: 0.9rem; background: #9c27b0; color: #fff;">Reserve $145 Pass</a>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- Pre-Order Section -->
         <section class="section" id="waitlist">
             <div class="waitlist-box">
                 <h2 style="font-size: 2rem; margin-bottom: 10px;">Reserve Early Access</h2>
-                <p style="color: #a0aec0;">The first 50 beta traders receive full sandbox access and subscription priority.</p>
+                <p style="color: #a0aec0;">The first 50 traders get subscription priority and free sandbox testing access.</p>
                 <form action="#" method="POST" onsubmit="alert('Thank you for joining the Cryptia pre-order waitlist!'); return false;">
                     <input type="email" placeholder="Enter your business email" required>
-                    <button type="submit" class="cta-btn" style="width: 100%; margin-top: 0;">Request Early Access</button>
+                    <button type="submit" class="cta-btn" style="width: 100%; margin-top: 0;">Join Pre-Order Waitlist</button>
                 </form>
             </div>
         </section>
@@ -112,10 +190,8 @@
         </footer>
     </div>
 
-    <!-- Three.js 3D Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // Set up Scene, Camera, and Renderer
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -123,7 +199,6 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('galaxy-container').appendChild(renderer.domElement);
 
-        // Helper function to create circular coin textures (BTC, ETH, SOL, USDT)
         function createCoinTexture(symbol, bgColor) {
             const canvas = document.createElement('canvas');
             canvas.width = 128; canvas.height = 128;
@@ -143,13 +218,12 @@
         }
 
         const coinTextures = [
-            createCoinTexture('₿', '#f7931a'), // BTC
-            createCoinTexture('Ξ', '#627eea'), // ETH
-            createCoinTexture('S', '#14f195'), // SOL
-            createCoinTexture('₮', '#26a17b')  // USDT
+            createCoinTexture('₿', '#f7931a'),
+            createCoinTexture('Ξ', '#627eea'),
+            createCoinTexture('S', '#14f195'),
+            createCoinTexture('₮', '#26a17b')
         ];
 
-        // Generate Spiral Coin Galaxy Group
         const galaxyGroup = new THREE.Group();
         const coinCount = 350;
 
@@ -176,7 +250,6 @@
         camera.position.set(0, 2, 5.5);
         camera.lookAt(0, 0, 0);
 
-        // Continuous Animation Loop
         function animate() {
             requestAnimationFrame(animate);
             galaxyGroup.rotation.y += 0.002;
@@ -184,7 +257,6 @@
         }
         animate();
 
-        // Responsive Resizing
         window.addEventListener('resize', () => {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
