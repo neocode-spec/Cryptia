@@ -1,303 +1,580 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cryptia | Automated Algorithmic Engine</title>
-    <!-- SVG Favicon Logo: Green C with crossed lines (₡ style) -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%2300e676' font-family='sans-serif' font-weight='bold'>₡</text></svg>">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
-        body { background: #05070b; color: #ffffff; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; overflow-x: hidden; }
-
-        /* Canvas Background for 3D Galaxy */
-        #galaxy-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; pointer-events: none; }
-
-        /* Content Overlay */
-        .content { position: relative; z-index: 2; width: 100%; }
-
-        /* Navigation Bar */
-        nav {
-            position: fixed; top: 0; left: 0; width: 100%; display: flex; justify-content: space-between;
-            align-items: center; padding: 20px 40px; z-index: 10; background: rgba(5, 7, 11, 0.7);
-            backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cryptia | All-In-One AI Trading Platform & Co-Pilot</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Custom Tailwind Configuration for Cryptia Palette -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb', // Primary Blue
+              700: '#1d4ed8',
+              900: '#1e3a8a',
+            },
+            dark: {
+              base: '#08090d',
+              surface: '#0f1117',
+              card: '#161922',
+              border: '#262a36'
+            }
+          }
         }
-        .logo-container { display: flex; align-items: center; gap: 12px; }
-        .currency-symbol {
-            font-size: 2.2rem; font-weight: 900; color: #00e676; text-shadow: 0 0 15px rgba(0, 230, 118, 0.6);
-            line-height: 1; font-family: monospace;
-        }
-        .brand-name { font-size: 1.5rem; font-weight: 800; letter-spacing: 1px; color: #ffffff; }
-
-        /* Hero Section */
-        .hero {
-            height: 100vh; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; text-align: center; padding: 0 20px;
-        }
-        .hero-logo { font-size: 5rem; color: #00e676; text-shadow: 0 0 35px rgba(0, 230, 118, 0.7); margin-bottom: 10px; }
-        .hero h1 { font-size: 4rem; font-weight: 800; letter-spacing: -1.5px; text-shadow: 0 0 25px rgba(0, 230, 118, 0.4); }
-        .hero p { color: #8a99ad; margin-top: 15px; max-width: 550px; font-size: 1.2rem; line-height: 1.5; }
-        .cta-btn {
-            margin-top: 30px; padding: 15px 32px; background: #00e676; color: #000000;
-            font-weight: bold; font-size: 1rem; border-radius: 8px; border: none; cursor: pointer;
-            text-decoration: none; box-shadow: 0 0 30px rgba(0, 230, 118, 0.4); transition: all 0.3s ease;
-        }
-        .cta-btn:hover { transform: translateY(-3px); box-shadow: 0 0 45px rgba(0, 230, 118, 0.7); }
-
-        /* Section Layouts */
-        .section { max-width: 1100px; margin: 0 auto; padding: 100px 20px; text-align: center; }
-        .section-title { font-size: 2.5rem; color: #ffffff; margin-bottom: 15px; }
-        .section-subtitle { color: #00e676; font-size: 1rem; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 50px; }
-
-        /* Grid Layout */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-        .card {
-            background: rgba(21, 26, 35, 0.75); border: 1px solid rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px); padding: 35px 25px; border-radius: 16px; text-align: left;
-            transition: transform 0.3s ease, border-color 0.3s ease;
-        }
-        .card:hover { transform: translateY(-5px); border-color: #00e676; }
-        .card h3 { font-size: 1.3rem; color: #00e676; margin-bottom: 12px; }
-        .card p { color: #a0aec0; font-size: 0.95rem; line-height: 1.6; }
-
-        /* Pricing Card Special Styling */
-        .pricing-card { text-align: center; position: relative; }
-        .pricing-card .price { font-size: 2.8rem; font-weight: 800; color: #ffffff; margin: 15px 0; }
-        .pricing-card .price span { font-size: 1rem; color: #8a99ad; }
-        .pricing-card ul { list-style: none; text-align: left; margin: 20px 0; color: #a0aec0; font-size: 0.9rem; }
-        .pricing-card ul li { margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
-        .pricing-card ul li::before { content: "✓"; color: #00e676; font-weight: bold; }
-        .popular-badge {
-            position: absolute; top: -12px; right: 20px; background: #00e676; color: #000;
-            padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: bold;
-        }
-
-        /* Form / Pre-Order Box */
-        .waitlist-box {
-            background: rgba(21, 26, 35, 0.85); border: 1px solid rgba(0, 230, 118, 0.3);
-            border-radius: 20px; padding: 50px; max-width: 600px; margin: 0 auto;
-        }
-        .waitlist-box input[type="email"] {
-            width: 100%; padding: 15px; margin: 20px 0; border-radius: 8px;
-            border: 1px solid #2d3748; background: #0b0e14; color: #ffffff; font-size: 1rem;
-        }
-        .waitlist-box input[type="email"]:focus { outline: none; border-color: #00e676; }
-
-        footer { text-align: center; padding: 40px; color: #4a5568; font-size: 0.9rem; }
-    </style>
+      }
+    }
+  </script>
+  <!-- Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Global Glow Effects */
+    .glow-blue {
+      box-shadow: 0 0 25px -5px rgba(37, 99, 235, 0.4);
+    }
+    .glow-blue-lg {
+      box-shadow: 0 0 50px -10px rgba(37, 99, 235, 0.3);
+    }
+    .bg-radial-gradient {
+      background: radial-gradient(circle at 50% 0%, rgba(37, 99, 235, 0.15) 0%, rgba(8, 9, 13, 1) 70%);
+    }
+  </style>
 </head>
-<body>
+<body class="bg-dark-base text-gray-100 font-sans antialiased selection:bg-brand-600 selection:text-white">
 
-    <!-- 3D Particle Galaxy Background -->
-    <div id="galaxy-container"></div>
+  <!-- ==================== NAVIGATION BAR ==================== -->
+  <nav class="sticky top-0 z-50 bg-dark-surface/80 backdrop-blur-md border-b border-dark-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      
+      <!-- LOGO: Coin C with double stroke -->
+      <div class="flex items-center space-x-3 cursor-pointer">
+        <svg class="w-10 h-10 text-brand-600" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <!-- Outer Coin Circle -->
+          <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="6" fill="#08090d"/>
+          <circle cx="50" cy="50" r="39" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2"/>
+          <!-- Inner Double-Stroke C -->
+          <path d="M 65 32 A 22 22 0 1 0 65 68" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+          <path d="M 65 32 A 22 22 0 1 0 65 68" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" transform="translate(-1.5, 0)"/>
+        </svg>
+        <span class="text-2xl font-black tracking-wider text-white">CRYPTIA</span>
+      </div>
 
-    <!-- Navigation Header -->
-    <nav>
-        <div class="logo-container">
-            <span class="currency-symbol">₡</span>
-            <span class="brand-name">CRYPTIA</span>
-        </div>
-        <a href="#pricing" class="cta-btn" style="margin-top: 0; padding: 8px 18px; font-size: 0.85rem;">View Tiers</a>
-    </nav>
+      <!-- Desktop Links -->
+      <div class="hidden md:flex items-center space-x-8 text-sm font-medium text-gray-300">
+        <a href="#ecosystem" class="hover:text-brand-500 transition-colors">Ecosystem</a>
+        <a href="#ai-triad" class="hover:text-brand-500 transition-colors">AI Triad</a>
+        <a href="#vault" class="hover:text-brand-500 transition-colors">Vault & VPN</a>
+        <a href="#tiers" class="hover:text-brand-500 transition-colors">Tiers & Pricing</a>
+        <a href="#api" class="hover:text-brand-500 transition-colors">Cryptia-Class API</a>
+      </div>
 
-    <div class="content">
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="hero-logo">₡</div>
-            <h1>CRYPTIA ENGINE</h1>
-            <p>Zero-custody, high-precision algorithmic execution strategy. Built for automated execution across global crypto markets.</p>
-            <a href="#waitlist" class="cta-btn">Join Pre-Order Waitlist</a>
-        </section>
-
-        <!-- System Capabilities Section -->
-        <section class="section">
-            <div class="section-subtitle">System Capabilities</div>
-            <h2 class="section-title">Engineered for Autonomous Performance</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Non-Custodial Architecture</h3>
-                    <p>Cryptia never touches or holds user funds. Connect your broker via trade-only API keys with zero withdrawal rights for maximum security.</p>
-                </div>
-                <div class="card">
-                    <h3>Hardcoded Risk Caps</h3>
-                    <p>Enforces a maximum 1.5% capital risk per trade and an integrated global stop-loss to protect portfolios during extreme market volatility.</p>
-                </div>
-                <div class="card">
-                    <h3>24/7 Cloud Worker Loops</h3>
-                    <p>Executes continuous algorithmic strategies on dedicated background cloud infrastructure—unaffected by local power or network drops.</p>
-                </div>
-                <div class="card">
-                    <h3>Sandbox Paper-Trading</h3>
-                    <p>Test real market signals in a risk-free simulated environment before deploying real capital to live broker connections.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Subscription Plans Section -->
-        <section class="section" id="pricing">
-            <div class="section-subtitle">Subscription Tiers</div>
-            <h2 class="section-title">Flexible Pricing for Every Trader</h2>
-            <div class="grid">
-                
-                <!-- $10 Plan -->
-                <div class="card pricing-card">
-                    <h3>Micro Tier</h3>
-                    <div class="price">$10 <span>/mo</span></div>
-                    <ul>
-                        <li>1 Exchange API Connection</li>
-                        <li>Full Sandbox Access</li>
-                        <li>Standard Execution Loop</li>
-                        <li>1.5% Max Risk Cap Protection</li>
-                    </ul>
-                    <a href="#waitlist" class="cta-btn" style="width: 100%; font-size: 0.85rem; padding: 10px;">Pre-Order $10 Tier</a>
-                </div>
-
-                <!-- $15 Plan -->
-                <div class="card pricing-card">
-                    <h3>Standard Tier</h3>
-                    <div class="price">$15 <span>/mo</span></div>
-                    <ul>
-                        <li>2 Exchange API Connections</li>
-                        <li>Full Sandbox + Live Engine</li>
-                        <li>Real-Time Signal Alerts</li>
-                        <li>Automated Stop-Loss Guards</li>
-                    </ul>
-                    <a href="#waitlist" class="cta-btn" style="width: 100%; font-size: 0.85rem; padding: 10px;">Pre-Order $15 Tier</a>
-                </div>
-
-                <!-- $20 Plan -->
-                <div class="card pricing-card" style="border-color: #00e676;">
-                    <div class="popular-badge">MOST POPULAR</div>
-                    <h3>Pro Tier</h3>
-                    <div class="price">$20 <span>/mo</span></div>
-                    <ul>
-                        <li>5 Exchange API Connections</li>
-                        <li>Priority Background Processing</li>
-                        <li>Multi-Asset Strategy Loops</li>
-                        <li>24/7 Cloud Worker Hosting</li>
-                    </ul>
-                    <a href="#waitlist" class="cta-btn" style="width: 100%; font-size: 0.85rem; padding: 10px;">Pre-Order $20 Tier</a>
-                </div>
-
-                <!-- $30 Plan -->
-                <div class="card pricing-card">
-                    <h3>Institutional</h3>
-                    <div class="price">$30 <span>/mo</span></div>
-                    <ul>
-                        <li>Unlimited API Connections</li>
-                        <li>Ultra-Low Latency Execution</li>
-                        <li>Custom Strategy Parameters</li>
-                        <li>Dedicated Cloud Worker Instance</li>
-                    </ul>
-                    <a href="#waitlist" class="cta-btn" style="width: 100%; font-size: 0.85rem; padding: 10px;">Pre-Order $30 Tier</a>
-                </div>
-
-                <!-- $145 Plan -->
-                <div class="card pricing-card" style="grid-column: 1 / -1; max-width: 500px; margin: 0 auto; width: 100%;">
-                    <h3>Lifetime / Founder Pass</h3>
-                    <div class="price">$145 <span>one-time</span></div>
-                    <ul>
-                        <li>Lifetime Access to All Tiers & Updates</li>
-                        <li>Unlimited API Connections Forever</li>
-                        <li>Zero Monthly Fees Ever</li>
-                        <li>Direct Strategy Support</li>
-                    </ul>
-                    <a href="#waitlist" class="cta-btn" style="width: 100%; font-size: 0.9rem; padding: 12px;">Reserve Founder Pass</a>
-                </div>
-
-            </div>
-        </section>
-
-        <!-- Pre-Order / Waitlist Section -->
-        <section class="section" id="waitlist">
-            <div class="waitlist-box">
-                <h2 style="font-size: 2rem; margin-bottom: 10px;">Reserve Early Access</h2>
-                <p style="color: #a0aec0;">The first 50 beta traders receive full sandbox access and subscription priority.</p>
-                <form action="#" method="POST" onsubmit="alert('Thank you for joining the Cryptia pre-order waitlist!'); return false;">
-                    <input type="email" placeholder="Enter your business email" required>
-                    <button type="submit" class="cta-btn" style="width: 100%; margin-top: 0;">Request Early Access</button>
-                </form>
-            </div>
-        </section>
-
-        <footer>
-            &copy; 2026 Cryptia Engine. All rights reserved.
-        </footer>
+      <!-- Action Buttons -->
+      <div class="flex items-center space-x-4">
+        <button onclick="toggleCurrency()" id="currencyBtn" class="px-3 py-1.5 rounded-lg border border-dark-border bg-dark-card text-xs font-semibold text-gray-300 hover:border-brand-500 transition-all">
+          <i class="fa-solid font-mono mr-1">₦</i> NGN / USD
+        </button>
+        <a href="#download" class="bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-xl font-bold text-sm glow-blue transition-all transform hover:-translate-y-0.5">
+          Get Cryptia (500 MB)
+        </a>
+      </div>
     </div>
+  </nav>
 
-    <!-- Three.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  <!-- ==================== HERO SECTION ==================== -->
+  <section class="relative pt-20 pb-16 md:pt-32 md:pb-24 overflow-hidden bg-radial-gradient">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
+      
+      <!-- Stealth Badge -->
+      <div class="inline-flex items-center space-x-2 bg-brand-900/40 border border-brand-500/30 px-4 py-1.5 rounded-full text-xs font-medium text-brand-500 mb-8 backdrop-blur-sm">
+        <span class="flex h-2 w-2 rounded-full bg-brand-500 animate-ping"></span>
+        <span>Unified App Architecture • 500 MB Base + 1.3 GB Resource Engine</span>
+      </div>
+
+      <!-- Main Heading -->
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight leading-tight max-w-5xl mx-auto">
+        Unfragmented Intelligence.<br/>
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-500 via-blue-400 to-indigo-500">
+          Unforgiving Trade Execution.
+        </span>
+      </h1>
+
+      <p class="mt-6 text-lg sm:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed">
+        The ultimate trading & AI co-pilot suite. Integrating <strong>Smirk</strong>, <strong>Agent</strong>, and the <strong>Mulah Execution Engines</strong> alongside built-in research tools, Web3 stablecoin off-ramps, and private VPN defenses.
+      </p>
+
+      <!-- Primary & Secondary CTAs -->
+      <div class="mt-10 flex flex-col sm:flex-row justify-center items-center gap-4">
+        <a href="#download" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white px-8 py-4 rounded-xl font-bold text-base glow-blue transition-all transform hover:-translate-y-1 text-center">
+          <i class="fa-solid fa-download mr-2"></i> Download Unified App (500 MB)
+        </a>
+        <a href="#tiers" class="w-full sm:w-auto bg-dark-card hover:bg-dark-border text-gray-200 border border-dark-border px-8 py-4 rounded-xl font-bold text-base transition-all text-center">
+          View Tier Matrix & Cryptia-Class
+        </a>
+      </div>
+
+      <!-- Key Platform Metrics -->
+      <div class="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto pt-10 border-t border-dark-border/60">
+        <div>
+          <p class="text-3xl font-black text-white">0%</p>
+          <p class="text-xs text-gray-400 mt-1">Order Lag (Cryptia+)</p>
+        </div>
+        <div>
+          <p class="text-3xl font-black text-brand-500">$20</p>
+          <p class="text-xs text-gray-400 mt-1">Capital Defense Floor</p>
+        </div>
+        <div>
+          <p class="text-3xl font-black text-white">10 USDT</p>
+          <p class="text-xs text-gray-400 mt-1">Min. Web3 Cashout</p>
+        </div>
+        <div>
+          <p class="text-3xl font-black text-brand-500">80 GB+</p>
+          <p class="text-xs text-gray-400 mt-1">Vault Storage (Pro Plus)</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== THE AI TRIAD ==================== -->
+  <section id="ai-triad" class="py-20 bg-dark-surface border-y border-dark-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-xs font-bold text-brand-500 uppercase tracking-widest">Specialized Intelligence</h2>
+        <p class="text-3xl sm:text-4xl font-black text-white mt-2">The Specialized AI Families</p>
+        <p class="text-gray-400 mt-4 text-sm sm:text-base">
+          Cryptia partitions AI responsibility across three specialized families, isolating trade latency from chat interface overhead.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
         
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.getElementById('galaxy-container').appendChild(renderer.domElement);
+        <!-- S-Series (Smirk) -->
+        <div class="bg-dark-card border border-dark-border rounded-2xl p-8 hover:border-brand-500/50 transition-all group">
+          <div class="w-14 h-14 bg-brand-900/50 border border-brand-500/40 rounded-xl flex items-center justify-center text-brand-500 text-2xl mb-6 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-graduation-cap"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white">S-Series: Smirk</h3>
+          <p class="text-xs font-mono text-brand-500 mt-1">The Overhead Supervisor & Chatbot</p>
+          <p class="text-gray-400 text-sm mt-4 leading-relaxed">
+            Interacts directly with traders. Triggers the mandatory <strong>6:00 PM pre-close study alert</strong>, manages Cryptia Notes, explains daily P&L, and enforces capital limit warnings.
+          </p>
+        </div>
 
-        function createCoinTexture(symbol, bgColor) {
-            const canvas = document.createElement('canvas');
-            canvas.width = 128; canvas.height = 128;
-            const ctx = canvas.getContext('2d');
+        <!-- A-Series (Agent) -->
+        <div class="bg-dark-card border border-dark-border rounded-2xl p-8 hover:border-brand-500/50 transition-all group">
+          <div class="w-14 h-14 bg-brand-900/50 border border-brand-500/40 rounded-xl flex items-center justify-center text-brand-500 text-2xl mb-6 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-satellite-dish"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white">A-Series: Agent</h3>
+          <p class="text-xs font-mono text-brand-500 mt-1">Real-Time Web & News Radar</p>
+          <p class="text-gray-400 text-sm mt-4 leading-relaxed">
+            Crawls US, European, Asian, and Nigerian macroeconomic feeds. Filters fake news, syncs economic calendars, and feeds sentiment data straight to execution engines.
+          </p>
+        </div>
 
-            ctx.beginPath();
-            ctx.arc(64, 64, 60, 0, Math.PI * 2);
-            ctx.fillStyle = bgColor; ctx.fill();
-            ctx.lineWidth = 6; ctx.strokeStyle = '#ffffff'; ctx.stroke();
+        <!-- M-Series (Mulah) -->
+        <div class="bg-dark-card border border-dark-border rounded-2xl p-8 hover:border-brand-500/50 transition-all group relative overflow-hidden">
+          <div class="w-14 h-14 bg-brand-900/50 border border-brand-500/40 rounded-xl flex items-center justify-center text-brand-500 text-2xl mb-6 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-bolt"></i>
+          </div>
+          <h3 class="text-xl font-bold text-white">M-Series: Mulah Family</h3>
+          <p class="text-xs font-mono text-brand-500 mt-1">High-Frequency Execution Engine</p>
+          <p class="text-gray-400 text-sm mt-4 leading-relaxed">
+            Shielded behind a strict server firewall. Handles high-speed lot sizing, risk coordination, and order routing. Auto-disengages to Manual Mode if equity hits the $20 floor.
+          </p>
+        </div>
 
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 42px sans-serif';
-            ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-            ctx.fillText(symbol, 64, 64);
+      </div>
 
-            return new THREE.CanvasTexture(canvas);
-        }
+    </div>
+  </section>
 
-        const coinTextures = [
-            createCoinTexture('₿', '#f7931a'),
-            createCoinTexture('Ξ', '#627eea'),
-            createCoinTexture('S', '#14f195'),
-            createCoinTexture('₮', '#26a17b')
-        ];
+  <!-- ==================== ALL-IN-ONE SUITES ==================== -->
+  <section id="ecosystem" class="py-20 bg-dark-base">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-xs font-bold text-brand-500 uppercase tracking-widest">Unfragmented Power</h2>
+        <p class="text-3xl sm:text-4xl font-black text-white mt-2">Built-In Cryptia Tool Suites</p>
+        <p class="text-gray-400 mt-4 text-sm sm:text-base">
+          No external app switching. Everything runs inside the single ~500 MB executable paired with local resource packages.
+        </p>
+      </div>
 
-        const galaxyGroup = new THREE.Group();
-        const coinCount = 350;
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Research Booklet -->
+        <div class="bg-dark-surface border border-dark-border rounded-xl p-6 hover:border-gray-600 transition-all">
+          <i class="fa-solid fa-book-bookmark text-brand-500 text-2xl mb-4"></i>
+          <h4 class="text-lg font-bold text-white">Research Booklet</h4>
+          <p class="text-gray-400 text-xs mt-2 leading-relaxed">
+            Interactive tactical board to sketch, align, and backtest custom strategies before handing parameter execution to the M-Series engine.
+          </p>
+        </div>
 
-        for (let i = 0; i < coinCount; i++) {
-            const texture = coinTextures[i % coinTextures.length];
-            const material = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0.9 });
-            const sprite = new THREE.Sprite(material);
+        <!-- Cryptia Calendar -->
+        <div class="bg-dark-surface border border-dark-border rounded-xl p-6 hover:border-gray-600 transition-all">
+          <i class="fa-solid fa-calendar-days text-brand-500 text-2xl mb-4"></i>
+          <h4 class="text-lg font-bold text-white">Cryptia Calendar</h4>
+          <p class="text-gray-400 text-xs mt-2 leading-relaxed">
+            Live macroeconomic calendar tracking central bank rate decisions, CPI prints, and market volatility windows with auto-pause triggers.
+          </p>
+        </div>
 
-            const radius = Math.random() * 6 + 0.5;
-            const spinAngle = radius * 2.5;
-            const branchAngle = ((i % 3) * 2 * Math.PI) / 3;
+        <!-- Cryptia Notes -->
+        <div class="bg-dark-surface border border-dark-border rounded-xl p-6 hover:border-gray-600 transition-all">
+          <i class="fa-solid fa-pen-to-square text-brand-500 text-2xl mb-4"></i>
+          <h4 class="text-lg font-bold text-white">Cryptia Notes</h4>
+          <p class="text-gray-400 text-xs mt-2 leading-relaxed">
+            In-app study pad integrated directly with the Smirk chat terminal for documenting daily lessons during the 6:00 PM pre-close session.
+          </p>
+        </div>
 
-            sprite.position.x = Math.cos(branchAngle + spinAngle) * radius + (Math.random() - 0.5) * 0.4;
-            sprite.position.y = (Math.random() - 0.5) * 0.5;
-            sprite.position.z = Math.sin(branchAngle + spinAngle) * radius + (Math.random() - 0.5) * 0.4;
+        <!-- Monthly Receipts -->
+        <div class="bg-dark-surface border border-dark-border rounded-xl p-6 hover:border-gray-600 transition-all">
+          <i class="fa-solid fa-file-invoice-dollar text-brand-500 text-2xl mb-4"></i>
+          <h4 class="text-lg font-bold text-white">Receipt of the Month</h4>
+          <p class="text-gray-400 text-xs mt-2 leading-relaxed">
+            Automated monthly audit generating detailed performance breakdowns, brokerage fee costs, win/loss stats, and net P&L metrics.
+          </p>
+        </div>
 
-            const scale = Math.random() * 0.12 + 0.1;
-            sprite.scale.set(scale, scale, 1);
+        <!-- Multi-Account Radar -->
+        <div class="bg-dark-surface border border-dark-border rounded-xl p-6 hover:border-gray-600 transition-all">
+          <i class="fa-solid fa-diagram-project text-brand-500 text-2xl mb-4"></i>
+          <h4 class="text-lg font-bold text-white">Multi-Account Command</h4>
+          <p class="text-gray-400 text-xs mt-2 leading-relaxed">
+            Connect and monitor HFM, MetaTrader 5, Deriv (Jump 75/V75), crypto exchanges, and stock APIs in one unified health dashboard.
+          </p>
+        </div>
 
-            galaxyGroup.add(sprite);
-        }
+        <!-- Cryptia Syndicates -->
+        <div class="bg-dark-surface border border-dark-border rounded-xl p-6 hover:border-gray-600 transition-all">
+          <i class="fa-solid fa-users-rectangle text-brand-500 text-2xl mb-4"></i>
+          <h4 class="text-lg font-bold text-white">Cryptia Syndicates</h4>
+          <p class="text-gray-400 text-xs mt-2 leading-relaxed">
+            Collaborative capital pooling allowing users to combine funds and deploy institutional M-Series strategies across high-barrier markets.
+          </p>
+        </div>
 
-        scene.add(galaxyGroup);
-        camera.position.set(0, 2, 5.5);
-        camera.lookAt(0, 0, 0);
+      </div>
 
-        function animate() {
-            requestAnimationFrame(animate);
-            galaxyGroup.rotation.y += 0.002;
-            renderer.render(scene, camera);
-        }
-        animate();
+    </div>
+  </section>
 
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-    </script>
+  <!-- ==================== VAULT, VPN & WEB3 CASH-OUT ==================== -->
+  <section id="vault" class="py-20 bg-dark-surface border-y border-dark-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        
+        <div>
+          <h2 class="text-xs font-bold text-brand-500 uppercase tracking-widest">Fortress Security & Bridge</h2>
+          <p class="text-3xl sm:text-4xl font-black text-white mt-2">Cryptia Vault, Safe VPN & Web3 Cashout</p>
+          <p class="text-gray-400 mt-4 text-sm leading-relaxed">
+            Designed for data conservation and anti-scam protection. Build capital risk-free, safeguard your connection, and withdraw profits smoothly.
+          </p>
+
+          <div class="mt-8 space-y-6">
+            
+            <!-- Vault -->
+            <div class="flex items-start space-x-4">
+              <div class="w-10 h-10 bg-brand-900/40 border border-brand-500/30 rounded-lg flex items-center justify-center text-brand-500 shrink-0 mt-1">
+                <i class="fa-solid fa-vault"></i>
+              </div>
+              <div>
+                <h4 class="text-base font-bold text-white">Cryptia Cloud Vault & Data Rollback</h4>
+                <p class="text-gray-400 text-xs mt-1">
+                  Starts at 15 GB (up to 35 GB on Free/Plus; 80 GB+ on Pro Plus). Includes the <strong>Data Rollback</strong> system, crediting back data bonus allowances (~1 GB) after heavy session streams.
+                </p>
+              </div>
+            </div>
+
+            <!-- VPN -->
+            <div class="flex items-start space-x-4">
+              <div class="w-10 h-10 bg-brand-900/40 border border-brand-500/30 rounded-lg flex items-center justify-center text-brand-500 shrink-0 mt-1">
+                <i class="fa-solid fa-shield-halved"></i>
+              </div>
+              <div>
+                <h4 class="text-base font-bold text-white">In-House Safe VPN</h4>
+                <p class="text-gray-400 text-xs mt-1">
+                  Encrypted tunnel protecting orders from ISP throttling and regional restrictions. Hourly session caps on Free/Plus; <strong>Unlimited global access</strong> on Pro Plus and higher.
+                </p>
+              </div>
+            </div>
+
+            <!-- Web3 Cashout -->
+            <div class="flex items-start space-x-4">
+              <div class="w-10 h-10 bg-brand-900/40 border border-brand-500/30 rounded-lg flex items-center justify-center text-brand-500 shrink-0 mt-1">
+                <i class="fa-solid fa-wallet"></i>
+              </div>
+              <div>
+                <h4 class="text-base font-bold text-white">Dummy-to-Stablecoin Off-Ramp</h4>
+                <p class="text-gray-400 text-xs mt-1">
+                  Convert demo trading milestone profits directly into real <strong>USDT (10 USDT min)</strong>. Transfer to Trust Wallet, Exodus, or Binance, and cash out straight to Nigerian banks.
+                </p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Terminal Graphic / Card Visual -->
+        <div class="bg-dark-card border border-dark-border rounded-2xl p-6 glow-blue">
+          <div class="flex items-center justify-between pb-4 border-b border-dark-border">
+            <div class="flex items-center space-x-2">
+              <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+              <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+              <span class="w-3 h-3 rounded-full bg-green-500/80"></span>
+            </div>
+            <span class="text-xs font-mono text-gray-500">Cryptia_Vault_Terminal_v3.8</span>
+          </div>
+          <div class="py-6 space-y-4 font-mono text-xs text-gray-300">
+            <p class="text-green-400">> ENCRYPTED_TUNNEL_STATUS: ACTIVE (Safe VPN)</p>
+            <p class="text-brand-500">> VAULT_ALLOCATION: 80 GB [PRO PLUS UNLOCKED]</p>
+            <p class="text-yellow-400">> CAPITAL_DEFENSE_FLOOR: $20 ACTIVE (M-Series Risk Monitor)</p>
+            <div class="p-4 bg-dark-base rounded-lg border border-dark-border">
+              <p class="text-gray-400">Stablecoin Bridge Cashout:</p>
+              <div class="flex justify-between items-center mt-2">
+                <span class="text-white font-bold">Simulated Profits Converted:</span>
+                <span class="text-green-400 font-bold">+25.00 USDT</span>
+              </div>
+              <p class="text-[10px] text-gray-500 mt-1">Status: Ready for external transfer (Trust Wallet / Exodus / Bank)</p>
+            </div>
+            <p class="text-gray-500 text-[11px] animate-pulse">> Syncing weekly strategy packs...</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== PRICING & TIER MATRIX ==================== -->
+  <section id="tiers" class="py-20 bg-dark-base">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="text-center max-w-3xl mx-auto mb-16">
+        <h2 class="text-xs font-bold text-brand-500 uppercase tracking-widest">Platform Access</h2>
+        <p class="text-3xl sm:text-4xl font-black text-white mt-2">Membership & Tier Matrix</p>
+        <p class="text-gray-400 mt-4 text-sm sm:text-base">
+          From simulation sandboxes to retail live trading and verified community creator portals.
+        </p>
+      </div>
+
+      <!-- Pricing Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+        
+        <!-- FREE TIER -->
+        <div class="bg-dark-surface border border-dark-border rounded-2xl p-8 flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-mono text-gray-400 uppercase tracking-wider">Educational Sandbox</span>
+            <h3 class="text-2xl font-bold text-white mt-2">Free Tier</h3>
+            <div class="mt-4 flex items-baseline">
+              <span class="text-4xl font-black text-white price-val-ngn">₦0</span>
+              <span class="text-4xl font-black text-white price-val-usd hidden">$0</span>
+              <span class="text-gray-400 text-sm ml-2">/forever</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Full visual suite access with delayed data and simulated trading environment.</p>
+
+            <ul class="mt-6 space-y-3 text-xs text-gray-300 border-t border-dark-border pt-6">
+              <li class="flex items-center"><i class="fa-solid fa-check text-brand-500 mr-2"></i> Up to 4 Connected Devices</li>
+              <li class="flex items-center"><i class="fa-solid fa-check text-brand-500 mr-2"></i> 15 GB Vault Drive (Request up to 35 GB)</li>
+              <li class="flex items-center text-gray-500"><i class="fa-solid fa-clock mr-2"></i> 5-Minute Agent News Lag</li>
+              <li class="flex items-center text-gray-500"><i class="fa-solid fa-lock mr-2"></i> Tier-1 Markets Locked (US, China, Japan)</li>
+              <li class="flex items-center text-gray-500"><i class="fa-solid fa-ban mr-2"></i> Signal & Video Sharing LOCKED</li>
+            </ul>
+          </div>
+
+          <a href="#download" class="mt-8 w-full bg-dark-card hover:bg-dark-border text-white py-3 rounded-xl font-bold text-sm text-center border border-dark-border transition-all">
+            Start Free Sandbox
+          </a>
+        </div>
+
+        <!-- CRYPTIA+ -->
+        <div class="bg-dark-surface border border-dark-border rounded-2xl p-8 flex flex-col justify-between">
+          <div>
+            <span class="text-xs font-mono text-brand-500 uppercase tracking-wider">Live Multi-Device Entry</span>
+            <h3 class="text-2xl font-bold text-white mt-2">Cryptia+</h3>
+            <div class="mt-4 flex items-baseline">
+              <span class="text-4xl font-black text-white price-val-ngn">₦20,000</span>
+              <span class="text-4xl font-black text-white price-val-usd hidden">~$15</span>
+              <span class="text-gray-400 text-sm ml-2">/month</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Built for traders ready to execute live orders with zero artificial lag.</p>
+
+            <ul class="mt-6 space-y-3 text-xs text-gray-300 border-t border-dark-border pt-6">
+              <li class="flex items-center"><i class="fa-solid fa-check text-brand-500 mr-2"></i> <strong>Up to 5 Connected Devices</strong></li>
+              <li class="flex items-center"><i class="fa-solid fa-check text-brand-500 mr-2"></i> <strong>100% Zero-Lag Order Execution</strong></li>
+              <li class="flex items-center"><i class="fa-solid fa-check text-brand-500 mr-2"></i> Live Broker Linking (HFM, MT5, Deriv)</li>
+              <li class="flex items-center"><i class="fa-solid fa-check text-brand-500 mr-2"></i> Tier-1 Global Markets Unlocked</li>
+              <li class="flex items-center text-gray-500"><i class="fa-solid fa-ban mr-2"></i> Signal & Video Sharing LOCKED</li>
+            </ul>
+          </div>
+
+          <a href="#download" class="mt-8 w-full bg-brand-600 hover:bg-brand-700 text-white py-3 rounded-xl font-bold text-sm text-center transition-all glow-blue">
+            Subscribe Cryptia+
+          </a>
+        </div>
+
+        <!-- PRO PLUS (SWEET SPOT) -->
+        <div class="bg-dark-card border-2 border-brand-500 rounded-2xl p-8 flex flex-col justify-between relative glow-blue-lg">
+          <div class="absolute -top-3.5 right-6 bg-brand-600 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full">
+            The Sweet Spot
+          </div>
+
+          <div>
+            <span class="text-xs font-mono text-brand-500 uppercase tracking-wider">Verified Creator & Leader</span>
+            <h3 class="text-2xl font-bold text-white mt-2">Pro Plus</h3>
+            <div class="mt-4 flex items-baseline">
+              <span class="text-4xl font-black text-white price-val-ngn">₦39,890</span>
+              <span class="text-4xl font-black text-white price-val-usd hidden">~$30</span>
+              <span class="text-gray-400 text-sm ml-2">/month</span>
+            </div>
+            <p class="text-xs text-gray-400 mt-2">Full verification gate. Unlocks community leadership, signals, and high storage.</p>
+
+            <ul class="mt-6 space-y-3 text-xs text-gray-300 border-t border-dark-border pt-6">
+              <li class="flex items-center"><i class="fa-solid fa-check text-brand-500 mr-2"></i> Up to 5 Connected Devices</li>
+              <li class="flex items-center"><i class="fa-solid fa-check text-brand-500 mr-2"></i> <strong>Verified Trader Badge & Directory</strong></li>
+              <li class="flex items-center"><i class="fa-solid fa-check text-brand-500 mr-2"></i> <strong>Signal Sharing & Video Publishing OPEN</strong></li>
+              <li class="flex items-center"><i class="fa-solid fa-check text-brand-500 mr-2"></i> <strong>80 GB+ Dedicated Vault Drive</strong></li>
+              <li class="flex items-center"><i class="fa-solid fa-check text-brand-500 mr-2"></i> Unlimited Safe VPN Access</li>
+              <li class="flex items-center"><i class="fa-solid fa-check text-brand-500 mr-2"></i> Early AI Model Drops (e.g. Agent 3.8)</li>
+            </ul>
+          </div>
+
+          <a href="#download" class="mt-8 w-full bg-brand-600 hover:bg-brand-700 text-white py-3 rounded-xl font-bold text-sm text-center transition-all glow-blue">
+            Unlock Pro Plus
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== CRYPTIA-CLASS API SECTION ==================== -->
+  <section id="api" class="py-20 bg-dark-surface border-t border-dark-border">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      
+      <div class="bg-gradient-to-br from-dark-card to-dark-base border border-dark-border rounded-3xl p-8 sm:p-12 relative overflow-hidden">
+        
+        <div class="max-w-3xl relative z-10">
+          <div class="inline-flex items-center space-x-2 bg-brand-900/50 border border-brand-500/30 px-3 py-1 rounded-full text-xs font-mono text-brand-500 mb-6">
+            <i class="fa-solid fa-code"></i>
+            <span>DEVELOPER & QUANTITATIVE TIER</span>
+          </div>
+
+          <h2 class="text-3xl sm:text-5xl font-black text-white tracking-tight">
+            The Elite <span class="text-brand-500">Cryptia-Class</span> Tiers
+          </h2>
+
+          <p class="text-gray-400 mt-4 text-sm sm:text-base leading-relaxed">
+            Direct REST, WebSocket, and M-Series execution API hooks are exclusively restricted to plans with <strong>"Cryptia"</strong> in their title. Built for quantitative programmers, bot developers, and institutional desks.
+          </p>
+
+          <!-- Cryptia-Class Grid -->
+          <div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            
+            <div class="p-4 bg-dark-base/80 border border-dark-border rounded-xl">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-white text-sm">Cryptia Trader</span>
+                <span class="text-xs font-mono text-brand-500">₦60,000 /mo</span>
+              </div>
+              <p class="text-[11px] text-gray-500 mt-1">Power solo operators running custom parameters.</p>
+            </div>
+
+            <div class="p-4 bg-dark-base/80 border border-dark-border rounded-xl">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-white text-sm">Cryptia Ultimate Trader</span>
+                <span class="text-xs font-mono text-brand-500">₦100,000 /mo</span>
+              </div>
+              <p class="text-[11px] text-gray-500 mt-1">Multi-screen desk operators (Up to 14 devices).</p>
+            </div>
+
+            <div class="p-4 bg-dark-base/80 border border-dark-border rounded-xl">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-white text-sm">Supreme Cryptia</span>
+                <span class="text-xs font-mono text-brand-500">₦200,000+ /mo</span>
+              </div>
+              <p class="text-[11px] text-gray-500 mt-1">Job replacement tier with priority M-Series routing nodes.</p>
+            </div>
+
+            <div class="p-4 bg-dark-base/80 border border-dark-border rounded-xl border-brand-500/40">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-white text-sm">Hail Cryptia</span>
+                <span class="text-xs font-mono text-brand-500">₦270,000+ /mo</span>
+              </div>
+              <p class="text-[11px] text-gray-500 mt-1">Untouchable institutional colocation & zero rate-limiting.</p>
+            </div>
+
+          </div>
+
+          <div class="mt-8 flex items-center space-x-4">
+            <a href="#download" class="bg-brand-600 hover:bg-brand-700 text-white px-6 py-3 rounded-xl font-bold text-xs sm:text-sm glow-blue transition-all">
+              Apply For Cryptia-Class API
+            </a>
+            <span class="text-xs text-gray-500">Strict KYC & API Rate Safeguards Enforced</span>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ==================== FOOTER ==================== -->
+  <footer class="bg-dark-base border-t border-dark-border py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center sm:text-left">
+      <div class="flex flex-col sm:flex-row justify-between items-center gap-6">
+        
+        <!-- Logo -->
+        <div class="flex items-center space-x-3">
+          <svg class="w-8 h-8 text-brand-600" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="6" fill="#08090d"/>
+            <circle cx="50" cy="50" r="39" stroke="currentColor" stroke-width="2" stroke-dasharray="4 2"/>
+            <path d="M 65 32 A 22 22 0 1 0 65 68" stroke="currentColor" stroke-width="7" stroke-linecap="round"/>
+            <path d="M 65 32 A 22 22 0 1 0 65 68" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" transform="translate(-1.5, 0)"/>
+          </svg>
+          <span class="text-xl font-black tracking-wider text-white">CRYPTIA</span>
+        </div>
+
+        <p class="text-xs text-gray-500">
+          &copy; 2026 Cryptia Financial Ecosystem. All Rights Reserved. Quiet Growth & Stealth Execution Architecture.
+        </p>
+
+        <!-- Social Icons / Links -->
+        <div class="flex space-x-6 text-gray-400 text-sm">
+          <a href="#" class="hover:text-brand-500"><i class="fa-brands fa-discord"></i></a>
+          <a href="#" class="hover:text-brand-500"><i class="fa-brands fa-telegram"></i></a>
+          <a href="#" class="hover:text-brand-500"><i class="fa-brands fa-x-twitter"></i></a>
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
+  <!-- ==================== JAVASCRIPT ==================== -->
+  <script>
+    let isUSD = false;
+
+    function toggleCurrency() {
+      isUSD = !isUSD;
+      const ngnVals = document.querySelectorAll('.price-val-ngn');
+      const usdVals = document.querySelectorAll('.price-val-usd');
+
+      ngnVals.forEach(el => el.classList.toggle('hidden', isUSD));
+      usdVals.forEach(el => el.classList.toggle('hidden', !isUSD));
+    }
+  </script>
+
 </body>
 </html>
